@@ -1,6 +1,23 @@
 
-class GerenciadorPedidos:
+from dataclasses import dataclass
 
+
+@dataclass
+class DadosPedido:
+    nome: str
+    email: str
+    tipo_cliente: str
+    pagamento: str
+    parcelas: int
+    rua: str
+    numero: int
+    cidade: str
+    uf: str
+    cep: str
+
+
+class GerenciadorPedidos:
+    # Constantes das regras de negócio
     LIMITE_DESCONTO = 500
     DESCONTO_COMUM = 0.05
     DESCONTO_VIP = 0.15
@@ -36,8 +53,10 @@ class GerenciadorPedidos:
 
     def _calcular_subtotal(self):
         subtotal = 0
+
         for item in self.itens:
             subtotal += int(item[1]) * float(item[2])
+
         return subtotal
 
     def _calcular_desconto(self, subtotal, tipo_cliente):
@@ -50,6 +69,7 @@ class GerenciadorPedidos:
         elif tipo_cliente == "VIP":
             if subtotal > self.LIMITE_DESCONTO:
                 return subtotal * self.DESCONTO_VIP
+
             return subtotal * self.DESCONTO_VIP_PADRAO
 
         elif tipo_cliente == "FUNCIONARIO":
@@ -104,11 +124,12 @@ class GerenciadorPedidos:
     def adicionar_item(self, produto, qtd, preco):
         self.itens.append([produto, str(qtd), str(preco)])
 
-    def processar_pedido(
-        self, nome, email, tipo_cliente, pagamento, parcelas,
-        rua, numero, cidade, uf, cep
-    ):
-        erro_dados = self._validar_dados_pedido(nome, email, cep)
+    def processar_pedido(self, dados: DadosPedido):
+        erro_dados = self._validar_dados_pedido(
+            dados.nome,
+            dados.email,
+            dados.cep
+        )
 
         if erro_dados:
             return erro_dados
@@ -118,36 +139,48 @@ class GerenciadorPedidos:
         if erro_estoque:
             return erro_estoque
 
-        if tipo_cliente not in ["COMUM", "VIP", "FUNCIONARIO"]:
+        if dados.tipo_cliente not in [
+            "COMUM", "VIP", "FUNCIONARIO"
+        ]:
             return "ERRO: tipo de cliente desconhecido"
 
         subtotal = self._calcular_subtotal()
-        desconto = self._calcular_desconto(subtotal, tipo_cliente)
-        frete = self._calcular_frete(uf, incluir_ma=True)
+
+        desconto = self._calcular_desconto(
+            subtotal,
+            dados.tipo_cliente
+        )
+
+        frete = self._calcular_frete(
+            dados.uf,
+            incluir_ma=True
+        )
 
         if (
             subtotal - desconto > self.LIMITE_FRETE_GRATIS
-            or tipo_cliente == "VIP"
+            or dados.tipo_cliente == "VIP"
         ):
             frete = 0
 
         total = subtotal - desconto + frete
 
-        if pagamento == "PIX":
+        if dados.pagamento == "PIX":
             total *= 1 - self.DESCONTO_PIX
 
-        elif pagamento == "BOLETO":
+        elif dados.pagamento == "BOLETO":
             total += self.TAXA_BOLETO
 
-        elif pagamento == "CARTAO":
+        elif dados.pagamento == "CARTAO":
             if (
-                parcelas < self.PARCELAS_MINIMAS
-                or parcelas > self.PARCELAS_MAXIMAS
+                dados.parcelas < self.PARCELAS_MINIMAS
+                or dados.parcelas > self.PARCELAS_MAXIMAS
             ):
                 return "ERRO: parcelas invalidas"
 
-            if parcelas > self.PARCELAS_SEM_TAXA:
-                total *= 1 + self.TAXA_PARCELAMENTO * parcelas
+            if dados.parcelas > self.PARCELAS_SEM_TAXA:
+                total *= (
+                    1 + self.TAXA_PARCELAMENTO * dados.parcelas
+                )
 
         else:
             return "ERRO: forma de pagamento invalida"
@@ -160,22 +193,25 @@ class GerenciadorPedidos:
             self.estoque[produto] -= quantidade
 
         endereco = (
-            rua + ", " + str(numero) + " - " + cidade + "/" + uf
+            dados.rua + ", " + str(dados.numero)
+            + " - " + dados.cidade + "/" + dados.uf
         )
 
         try:
             with open("pedidos.csv", "a", encoding="utf-8") as arquivo:
                 arquivo.write(
-                    f"{nome},{email},{endereco},{total:.2f}\n"
+                    f"{dados.nome},{dados.email},{endereco},{total:.2f}\n"
                 )
+
         except OSError:
             print("Erro ao gravar pedido no arquivo")
 
-        print("Email enviado para " + email)
+        print("Email enviado para " + dados.email)
 
         self.historico.append(
-            f"{nome}|{tipo_cliente}|{total:.2f}"
+            f"{dados.nome}|{dados.tipo_cliente}|{total:.2f}"
         )
+
         self.total_vendido += total
         self.itens.clear()
 
@@ -183,7 +219,12 @@ class GerenciadorPedidos:
 
     def calcular_orcamento(self, tipo_cliente, uf):
         subtotal = self._calcular_subtotal()
-        desconto = self._calcular_desconto(subtotal, tipo_cliente)
+
+        desconto = self._calcular_desconto(
+            subtotal,
+            tipo_cliente
+        )
+
         frete = self._calcular_frete(uf)
 
         if (
@@ -203,6 +244,7 @@ class GerenciadorPedidos:
 
         for registro in self.historico:
             partes = registro.split("|")
+
             nome = partes[0]
             tipo_cliente = partes[1]
             total = partes[2]
@@ -245,6 +287,7 @@ class GerenciadorPedidos:
                     "ALERTA: " + produto
                     + " com estoque baixo (" + str(quantidade) + ")"
                 )
+
                 alertas.append(alerta)
                 print("Email de reposição: " + alerta)
 
