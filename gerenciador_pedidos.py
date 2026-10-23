@@ -41,6 +41,18 @@ class GerenciadorPedidos:
 
         return None
 
+    def _calcular_frete(self, uf, incluir_ma=False):
+        frete = 39.9
+
+        if uf == "PE":
+            frete = 12.5
+        elif incluir_ma and uf == "MA":
+            frete = 22.9
+        elif uf in ["PB", "AL", "RN", "BA", "SE", "CE", "PI"]:
+            frete = 22.9
+
+        return frete
+
     def adicionar_item(self, produto, qtd, preco):
         self.itens.append([produto, str(qtd), str(preco)])
 
@@ -71,11 +83,7 @@ class GerenciadorPedidos:
         subtotal = self._calcular_subtotal()
         desconto = self._calcular_desconto(subtotal, tipo_cliente)
 
-        frete = 39.9
-        if uf == "PE":
-            frete = 12.5
-        elif uf in ["PB", "AL", "RN", "BA", "SE", "CE", "PI", "MA"]:
-            frete = 22.9
+        frete = self._calcular_frete(uf, incluir_ma=True)
 
         if subtotal - desconto > 300 or tipo_cliente == "VIP":
             frete = 0
@@ -127,11 +135,7 @@ class GerenciadorPedidos:
         subtotal = self._calcular_subtotal()
         desconto = self._calcular_desconto(subtotal, tipo_cliente)
 
-        frete = 39.9
-        if uf == "PE":
-            frete = 12.5
-        elif uf in ["PB", "AL", "RN", "BA", "SE", "CE", "PI"]:
-            frete = 22.9
+        frete = self._calcular_frete(uf)
 
         if subtotal - desconto > 300 or tipo_cliente == "VIP":
             frete = 0
