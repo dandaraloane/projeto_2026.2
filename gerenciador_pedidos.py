@@ -28,6 +28,19 @@ class GerenciadorPedidos:
             return subtotal * 0.20
         return 0
 
+    def _validar_estoque(self):
+        for item in self.itens:
+            produto = item[0]
+            quantidade = int(item[1])
+
+            if produto not in self.estoque:
+                return "ERRO: produto inexistente " + produto
+
+            if self.estoque[produto] < quantidade:
+                return "ERRO: estoque insuficiente " + produto
+
+        return None
+
     def adicionar_item(self, produto, qtd, preco):
         self.itens.append([produto, str(qtd), str(preco)])
 
@@ -48,15 +61,9 @@ class GerenciadorPedidos:
         if len(cep_limpo) != 8 or not cep_limpo.isdigit():
             return "ERRO: cep invalido"
 
-        for item in self.itens:
-            produto = item[0]
-            quantidade = int(item[1])
-
-            if produto not in self.estoque:
-                return "ERRO: produto inexistente " + produto
-
-            if self.estoque[produto] < quantidade:
-                return "ERRO: estoque insuficiente " + produto
+        erro_estoque = self._validar_estoque()
+        if erro_estoque:
+            return erro_estoque
 
         if tipo_cliente not in ["COMUM", "VIP", "FUNCIONARIO"]:
             return "ERRO: tipo de cliente desconhecido"
