@@ -1,6 +1,6 @@
 
 import unittest
-from relatorio_vendas import RelatorioVendas
+from Smells.relatorio_vendas import RelatorioVendas
 
 
 class TestRelatorioVendas(unittest.TestCase):

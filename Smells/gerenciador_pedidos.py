@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from relatorio_vendas import RelatorioVendas
+from Smells.relatorio_vendas import RelatorioVendas
 
 
 @dataclass

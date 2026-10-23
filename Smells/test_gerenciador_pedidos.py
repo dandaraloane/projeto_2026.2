@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 
-from gerenciador_pedidos import GerenciadorPedidos, DadosPedido
+from Smells.gerenciador_pedidos import GerenciadorPedidos, DadosPedido
 
 
 class TestGerenciadorPedidos(unittest.TestCase):
