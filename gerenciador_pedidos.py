@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass
+from relatorio_vendas import RelatorioVendas
 
 
 @dataclass
@@ -17,7 +18,7 @@ class DadosPedido:
 
 
 class GerenciadorPedidos:
-    # Constantes das regras de negócio
+  
     LIMITE_DESCONTO = 500
     DESCONTO_COMUM = 0.05
     DESCONTO_VIP = 0.15
@@ -236,47 +237,13 @@ class GerenciadorPedidos:
         return round((subtotal - desconto + frete) * 100) / 100
 
     def gerar_relatorio(self):
-        relatorio = "=== RELATORIO DE VENDAS ===\n"
-
-        pedidos_vip = 0
-        pedidos_comum = 0
-        pedidos_funcionario = 0
-
-        for registro in self.historico:
-            partes = registro.split("|")
-
-            nome = partes[0]
-            tipo_cliente = partes[1]
-            total = partes[2]
-
-            if tipo_cliente == "VIP":
-                pedidos_vip += 1
-
-            elif tipo_cliente == "COMUM":
-                pedidos_comum += 1
-
-            elif tipo_cliente == "FUNCIONARIO":
-                pedidos_funcionario += 1
-
-            relatorio += (
-                "Cliente: " + nome
-                + " - Tipo: " + tipo_cliente
-                + " - Total: R$ " + total + "\n"
-            )
-
-        relatorio += "===========================\n"
-        relatorio += "Pedidos VIP: " + str(pedidos_vip) + "\n"
-        relatorio += "Pedidos COMUM: " + str(pedidos_comum) + "\n"
-        relatorio += (
-            "Pedidos FUNCIONARIO: "
-            + str(pedidos_funcionario) + "\n"
+        relatorio = RelatorioVendas(
+            historico=self.historico,
+            total_vendido=self.total_vendido,
+            meta_vendas=self.META_VENDAS
         )
-        relatorio += "Total vendido: R$ %.2f\n" % self.total_vendido
 
-        if self.total_vendido > self.META_VENDAS:
-            relatorio += "META ATINGIDA!\n"
-
-        return relatorio
+        return relatorio.gerar()
 
     def verificar_estoque(self):
         alertas = []

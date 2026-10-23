@@ -89,3 +89,40 @@
 
 **Resultado:** Redução da quantidade de parâmetros do método `processar_pedido()`, melhoria da legibilidade e manutenção do comportamento observado pelos testes.
 
+## Code smell identificado — Large Class (classe grande)
+
+**Problema encontrado:** A classe `GerenciadorPedidos` concentra diversas responsabilidades, incluindo processamento de pedidos, validação de dados e estoque, gravação de arquivos, geração de relatórios e mensagens promocionais. Essa concentração pode dificultar a manutenção e aumentar o acoplamento entre funcionalidades.
+
+**Refatoração proposta:** Extrair a geração de relatórios para uma classe específica, mantendo em `GerenciadorPedidos` apenas a coordenação necessária para fornecer os dados ao relatório.
+
+**Princípio SOLID relacionado:** SRP (*Single Responsibility Principle* — Princípio da Responsabilidade Única), pois a separação busca atribuir à geração de relatórios uma responsabilidade própria.
+
+**Testes:** Após a extração, executar todos os testes automatizados e adicionar testes para a nova classe de relatórios, verificando que o comportamento anterior foi preservado.
+
+## Refatoração 7 — Extração da geração de relatórios
+
+**Code smell identificado:** Large Class (classe grande).
+
+**Problema encontrado:** A classe `GerenciadorPedidos` concentrava o processamento de pedidos, as validações, o controle de estoque, a gravação de arquivos e a geração de relatórios, reunindo responsabilidades distintas.
+
+**Refatoração realizada:** Foi criada a classe `RelatorioVendas`, responsável pela geração do relatório de vendas. O método `gerar_relatorio()` de `GerenciadorPedidos` passou a delegar essa tarefa à nova classe.
+
+**Princípio SOLID relacionado:** SRP (*Single Responsibility Principle* — Princípio da Responsabilidade Única), pois a geração de relatórios foi separada em uma classe específica.
+
+**Testes:** Registrar a quantidade e o resultado reais da execução de todos os testes após a refatoração.
+
+**Resultado esperado:** Redução das responsabilidades concentradas em `GerenciadorPedidos`, maior organização do código e preservação do formato e do conteúdo do relatório anterior.
+
+## Refatoração 7 — Extração da geração de relatórios
+
+**Code smell identificado:** Large Class (classe grande).
+
+**Problema encontrado:** A classe `GerenciadorPedidos` concentrava várias responsabilidades, incluindo processamento de pedidos, validações, controle de estoque e geração de relatórios.
+
+**Refatoração realizada:** Foi criada a classe `RelatorioVendas`, responsável exclusivamente pela geração do relatório de vendas. O método `gerar_relatorio()` de `GerenciadorPedidos` passou a delegar essa tarefa à nova classe.
+
+**Princípio SOLID relacionado:** SRP (*Single Responsibility Principle* — Princípio da Responsabilidade Única), pois a geração de relatórios foi separada em uma classe específica.
+
+**Testes:** 20 testes executados com sucesso (`OK`), incluindo os testes de caracterização existentes e três novos testes para a classe `RelatorioVendas`.
+
+**Resultado:** Redução das responsabilidades concentradas em `GerenciadorPedidos`, melhor organização do código e preservação do comportamento esperado do relatório de vendas.
