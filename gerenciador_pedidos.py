@@ -28,6 +28,22 @@ class GerenciadorPedidos:
             return subtotal * 0.20
         return 0
 
+    def _validar_dados_pedido(self, nome, email, cep):
+        if not nome:
+            return "ERRO: cliente sem nome"
+
+        if "@" not in email:
+            return "ERRO: email invalido"
+
+        if not self.itens:
+            return "ERRO: pedido vazio"
+
+        cep_limpo = cep.replace("-", "").replace(".", "")
+        if len(cep_limpo) != 8 or not cep_limpo.isdigit():
+            return "ERRO: cep invalido"
+
+        return None
+
     def _validar_estoque(self):
         for item in self.itens:
             produto = item[0]
@@ -60,18 +76,9 @@ class GerenciadorPedidos:
         self, nome, email, tipo_cliente, pagamento, parcelas,
         rua, numero, cidade, uf, cep
     ):
-        if not nome:
-            return "ERRO: cliente sem nome"
-
-        if "@" not in email:
-            return "ERRO: email invalido"
-
-        if not self.itens:
-            return "ERRO: pedido vazio"
-
-        cep_limpo = cep.replace("-", "").replace(".", "")
-        if len(cep_limpo) != 8 or not cep_limpo.isdigit():
-            return "ERRO: cep invalido"
+        erro_dados = self._validar_dados_pedido(nome, email, cep)
+        if erro_dados:
+            return erro_dados
 
         erro_estoque = self._validar_estoque()
         if erro_estoque:
